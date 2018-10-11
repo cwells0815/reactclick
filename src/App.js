@@ -1,110 +1,87 @@
-import React, { Component } from 'react';
+//imports dependencies and files
+import React, { Component } from "react";
 import Navbar from "./components/Navbar";
-import Header from "./components/Header";
-import Main from "./components/Main";
+import Jumbotron from "./components/Jumbotron";
+import FriendCard from "./components/FriendCard";
 import Footer from "./components/Footer";
-import Image from "./components/Image";
-import Img from "./components/Img.json"
-import apples from "./images/apples.jpg"
-import blackberry from "./images/blackberry.jpg"
-import blueberries from "./images/blueberries.jpg"
-import cherries from "./images/cherries.jpg"
-import grapes from "./images/grapes.jpg"
-import orange from "./images/orange.jpg"
-import peaches from "./images/peaches.jpg"
-import pears from "./images/pears.jpg"
-import plums from "./images/plums.jpg"
-import pomegranate from "./images/pomegranate.jpg"
-import raspberries from "./images/raspberries.jpg"
-import strawberries from "./images/strawberries.jpg"
+import fish from "./fish.json";
+import "./App.css";
 
-import './App.css';
-
+//sets state to 0 or empty
 class App extends Component {
   state = {
-    picked: [],
-    correct: 0,
-    topscore: 0,
-    message: 'Click an image to begin'
+    fish,
+    clickedFish: [],
+    score: 0
   };
 
-  // credit: https://stackoverflow.com/questions/2450954/how-to-randomize-shuffle-a-javascript-array
-  shuffleArray = (array) => {
-    let imgArray = Img;
-    for (let i = imgArray.length - 1; i > 0; i--) {
-      let j = Math.floor(Math.random() * (i + 1));
-      [imgArray[i], imgArray[j]] = [imgArray[j], imgArray[i]];
-    }
-    return imgArray
-  }
+//when you click on a card ... the fish is taken out of the array
+  imageClick = event => {
+    const currentFish = event.target.alt;
+    const FishAlreadyClicked =
+      this.state.clickedFish.indexOf(currentFish) > -1;
 
-  pickImg = (name) => {
-    console.log("Clicked!!");
-    let picked = this.state.picked;
-    
-    if (picked.indexOf(name) === -1) {
+//if you click on a fish that has already been selected, the game is reset and cards reordered
+    if (FishAlreadyClicked) {
       this.setState({
-        picked: picked.concat(name),
-        correct: this.state.correct + 1,
-        topscore: this.state.correct + 1 > this.state.topscore ? this.state.correct + 1 : this.state.topscore,
-        message: "Correct: Good choice!" 
-      })
-      this.shuffleArray();
-    }
-    else {
-      this.setState({
-        message: "Incorrect: Play again?",
-        correct: 0,
-        picked: []
-      })
-    }
-  }
+        fish: this.state.fish.sort(function(a, b) {
+          return 0.5 - Math.random();
+        }),
+        clickedFish: [],
+        score: 0
+      });
+        alert("You lose. Play again?");
 
-  imgSwitch = (name) => {
-    switch (name) {
-      case "apples":
-        return `${apples}`
-      case "blackberries":
-        return `${blackberry}`
-      case "blueberries":
-        return `${blueberries}`
-      case "cherries":
-        return `${cherries}`
-      case "grapes":
-        return `${grapes}`
-      case "oranges":
-        return `${orange}`
-      case "peaches":
-        return `${peaches}`
-      case "pears":
-        return `${pears}`
-      case "plums":
-        return `${plums}`
-      case "pomegranates":
-        return `${pomegranate}`
-      case "raspberries":
-        return `${raspberries}`
-      case "strawberries":
-        return `${strawberries}`
-      default:
-        return `${apples}`
+//if you click on an available fish, your score is increased and cards reordered
+    } else {
+      this.setState(
+        {
+          fish: this.state.fish.sort(function(a, b) {
+            return 0.5 - Math.random();
+          }),
+          clickedFish: this.state.clickedFish.concat(
+            currentFish
+          ),
+          score: this.state.score + 1
+        },
+//if you get all 12 fish corrent you get a congrats message and the game resets        
+        () => {
+          if (this.state.score === 12) {
+            alert("Yay! You Win!");
+            this.setState({
+              fish: this.state.fish.sort(function(a, b) {
+                return 0.5 - Math.random();
+              }),
+              clickedFish: [],
+              score: 0
+            });
+          }
+        }
+      );
     }
-  }
+  };
 
+//the order of components to be rendered: navbar, jumbotron, friendcard, footer 
   render() {
     return (
       <div>
-        <Navbar correct={this.state.correct} topscore={this.state.topscore} message={this.state.message}/>
-        <Header />
-        <Main>
-          {this.shuffleArray(Img).map(image => (
-            <Image src={this.imgSwitch(image.name)} name={image.name} key={image.name} pickImg={this.pickImg}  />
+        <Navbar 
+          score={this.state.score}
+        />
+        <Jumbotron />
+        <div className="wrapper">
+          {this.state.fish.map(fish => (
+            <FriendCard
+              imageClick={this.imageClick}
+              id={fish.id}
+              key={fish.id}
+              image={fish.image}
+            />
           ))}
-        </Main>
+        </div>
         <Footer />
       </div>
     );
   }
 }
-
 export default App;

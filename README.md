@@ -1,4 +1,5 @@
-# Clicky Game
+# Clicky-Game
 
 ## Overview
-This is a simple memory game built in react.
+
+React click game - Avoid clicking on same picture twice to score.
